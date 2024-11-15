@@ -30,17 +30,17 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Copy files from src to current directory
+      - name: Copy laewtaemain.html to current directory
         run: |
-          # Use find to copy files from src to the current working directory
-          find src -type f -exec cp {} ./ \;
-          echo "Copied the following files to the current directory:"
+          # Copy the specific HTML file to the root directory
+          cp src/laewtaemain.html . 
+          echo "Copied laewtaemain.html to the current directory:"
           ls -al
 
-      - name: Upload artifact
+      - name: Upload laewtaemain.html to Pages
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './*'  # Upload all the copied files
+          path: './laewtaemain.html'  # Specifically upload the HTML file
 
       - name: Deploy to GitHub Pages
         id: deployment
