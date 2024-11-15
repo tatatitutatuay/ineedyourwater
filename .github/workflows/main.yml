@@ -38,10 +38,10 @@ jobs:
           ls -al
 
       - name: Upload laewtaemain.html to Pages
-        uses: actions/upload-artifact@v3  # Updated to v3
+        uses: actions/upload-artifact@v4  # Updated to v4
         with:
           name: github-pages
-          path: './laewtaemain.html'  # Ensure this points to the correct file
+          path: './laewtaemain.html'
 
       - name: Deploy to GitHub Pages
         id: deployment
