@@ -2,10 +2,30 @@
 #include <WiFiClientSecure.h>
 #include "DHT.h"
 #include <HTTPClient.h>
+#include <Firebase_ESP_Client.h>
+
+// Provide the token generation process info.
+#include "addons/TokenHelper.h"
+// Provide the RTDB payload printing info and other helper functions.
+#include "addons/RTDBHelper.h"
 
 // ########## CONFIGURATION : MODIFY HERE ##########
 char ssid[] = "po1";      // เครือข่าย Wi-Fi ที่ต้องการเชื่อมต่อ
 char pass[] = "299792ps"; // รหัสผ่านเครือข่าย
+
+#define API_KEY "AIzaSyAld8mAMkx-3bGBbOAS0-eqTn4QX7PyGn0"
+#define DATABASE_URL "https://es-project-f6e5f-default-rtdb.asia-southeast1.firebasedatabase.app/"
+
+FirebaseData firebaseData;
+
+FirebaseData fbdo;
+
+FirebaseAuth auth;
+FirebaseConfig config;
+
+unsigned long sendDataPrevMillis = 0;
+int count = 0;
+bool signupOK = false;
 
 #define DHTPIN 4
 #define DHTTYPE DHT22
@@ -102,62 +122,111 @@ void setup()
   Serial.println(WiFi.localIP());
 
   dht.begin();
+
+  config.api_key = API_KEY;
+  config.database_url = DATABASE_URL;
+
+  if (Firebase.signUp(&config, &auth, "", ""))
+  {
+    Serial.println("ok");
+    signupOK = true;
+  }
+  else
+  {
+    Serial.printf("%s\n", config.signer.signupError.message.c_str());
+  }
+
+  config.token_status_callback = tokenStatusCallback;
+
+  Firebase.begin(&config, &auth);
+  Firebase.reconnectWiFi(true);
 }
 
 void loop()
 {
-  int soilHumid = analogRead(sensorPin);
-
-  delay(2000);
-  float airHumid = dht.readHumidity();
-  float temperature = dht.readTemperature();
-  float f = dht.readTemperature(true);
-  float hif = dht.computeHeatIndex(f, airHumid);
-  float hic = dht.computeHeatIndex(temperature, airHumid, false);
-
-  if (isnan(airHumid) || isnan(temperature) || isnan(f))
+  if (Firebase.ready() && signupOK && (millis() - sendDataPrevMillis > 5000 || sendDataPrevMillis == 0))
   {
-    Serial.println(F("Failed to read from DHT sensor!"));
-    return;
-  }
+    sendDataPrevMillis = millis();
+    int soilHumid = analogRead(sensorPin);
 
-  if (soilHumid < 2500)
-  {
-    Serial.print("Moisture Sensor Value:");
-    Serial.println(soilHumid);
-    sendLineMessage(soilHumid, airHumid, temperature, 1, txt1 + String(soilHumid) + txt2);
-  }
-  else if (soilHumid >= 2500)
-  {
-    Serial.print("Soil Moisture Sensor Value:");
-    Serial.println(soilHumid);
-  }
-  // Serial.print("Moisture Sensor Value:");
-  // Serial.println(soilHumid);
-  // if (maxHumidity < Humidity)
-  // {
-  //   maxHumidity = Humidity;
-  // }
-  // if (minHumidity > Humidity)
-  // {
-  //   minHumidity = Humidity;
-  // }
-  // Serial.print("Max Humidity: ");
-  // Serial.println(maxHumidity);
-  // Serial.print("Min Humidity: ");
-  // Serial.println(minHumidity);
+    delay(2000);
+    float airHumid = dht.readHumidity();
+    float temperature = dht.readTemperature();
+    float f = dht.readTemperature(true);
+    float hif = dht.computeHeatIndex(f, airHumid);
+    float hic = dht.computeHeatIndex(temperature, airHumid, false);
 
-  // Serial.print(F("Humidity: "));
-  // Serial.print(h);
-  // Serial.print(F("%  Temperature: "));
-  // Serial.print(t);
-  // Serial.print(F("°C "));
-  // Serial.print(f);
-  // Serial.print(F("°F  Heat index: "));
-  // Serial.print(hic);
-  // Serial.print(F("°C "));
-  // Serial.print(hif);
-  // Serial.println(F("°F"));
+    if (isnan(airHumid) || isnan(temperature) || isnan(f))
+    {
+      Serial.println(F("Failed to read from DHT sensor!"));
+      return;
+    }
 
-  // delay(500);
+    if (soilHumid < 2500)
+    {
+      Serial.print("Moisture Sensor Value:");
+      Serial.println(soilHumid);
+      sendLineMessage(soilHumid, airHumid, temperature, 1, txt1 + String(soilHumid) + txt2);
+    }
+    else if (soilHumid >= 2500)
+    {
+      Serial.print("Soil Moisture Sensor Value:");
+      Serial.println(soilHumid);
+    }
+
+    Serial.println("Attempting to set Firebase value...");
+
+    if (Firebase.RTDB.setFloat(&fbdo, "Sensor/temperature", temperature))
+    {
+      Serial.print("-successfully saved");
+      Serial.println(fbdo.dataPath());
+    }
+    else
+    {
+      Serial.println("FAILED");
+    }
+
+    Serial.println("Finished attempting to set Firebase value.");
+
+    if (Firebase.RTDB.setFloat(&fbdo, "Sensor/airHumid", airHumid))
+    {
+      Serial.println();
+      Serial.print(airHumid);
+      Serial.print("-successfully saved");
+      Serial.println(fbdo.dataPath());
+    }
+
+    else
+    {
+      Serial.println("FAILED");
+    }
+    // Serial.print("Moisture Sensor Value:");
+    // Serial.println(soilHumid);
+    // if (maxHumidity < Humidity)
+    // {
+    //   maxHumidity = Humidity;
+    // }
+    // if (minHumidity > Humidity)
+    // {
+    //   minHumidity = Humidity;
+    // }
+    // Serial.print("Max Humidity: ");
+    // Serial.println(maxHumidity);
+    // Serial.print("Min Humidity: ");
+    // Serial.println(minHumidity);
+
+    // Serial.print(F("Humidity: "));
+    // Serial.print(h);
+    // Serial.print(F("%  Temperature: "));
+    // Serial.print(t);
+    // Serial.print(F("°C "));
+    // Serial.print(f);
+    // Serial.print(F("°F  Heat index: "));
+    // Serial.print(hic);
+    // Serial.print(F("°C "));
+    // Serial.print(hif);
+    // Serial.println(F("°F"));
+
+    // delay(500);
+  }
 }
