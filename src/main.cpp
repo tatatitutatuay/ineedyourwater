@@ -31,6 +31,8 @@ bool signupOK = false;
 #define DHTTYPE DHT22
 DHT dht(DHTPIN, DHTTYPE);
 
+#define LDRPIN 35
+
 // ข้อความ ที่จะแสดงใน Line
 String txt1 = "ความชื้นเท่ากับ "; // ข้อความ 1 ที่จะแสดงใน Line
 String txt2 = " รดน้ำได้แล้ว !"; // ข้อความ 2 ที่จะแสดงใน Line
@@ -147,6 +149,7 @@ void loop()
   if (Firebase.ready() && signupOK && (millis() - sendDataPrevMillis > 5000 || sendDataPrevMillis == 0))
   {
     sendDataPrevMillis = millis();
+    int light = analogRead(LDRPIN);
     int soilHumid = analogRead(sensorPin);
 
     delay(2000);
@@ -199,8 +202,6 @@ void loop()
       Serial.println("FAILED");
     }
 
-    Serial.println("Finished attempting to set Firebase value.");
-
     if (Firebase.RTDB.setFloat(&fbdo, "Sensor/airHumid", airHumid))
     {
       Serial.println();
@@ -213,6 +214,21 @@ void loop()
     {
       Serial.println("FAILED");
     }
+
+    if (Firebase.RTDB.setFloat(&fbdo, "Sensor/light", soilHumid))
+    {
+      Serial.println();
+      Serial.print(light);
+      Serial.print("-successfully saved");
+      Serial.println(fbdo.dataPath());
+    }
+
+    else
+    {
+      Serial.println("FAILED");
+    }
+
+    Serial.println("Finished attempting to set Firebase value.");
     // Serial.print("Moisture Sensor Value:");
     // Serial.println(soilHumid);
     // if (maxHumidity < Humidity)
