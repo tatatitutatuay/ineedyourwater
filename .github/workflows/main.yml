@@ -40,7 +40,7 @@ jobs:
       - name: Upload laewtaemain.html to Pages
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './*'  # Specifically upload the HTML file
+          path: './'  # Specifically upload the HTML file
 
       - name: Deploy to GitHub Pages
         id: deployment
