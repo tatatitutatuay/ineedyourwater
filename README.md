@@ -1,1 +1,2 @@
 # ineedyourwater
+ineedyourwater is the nickname of 'Smart Plant Monitoring System Using Soil, Temperature, and Light Analysis' which is the final project of the course 2110356 Embedded System of the CEDT student (Computer Engineering and Digital Technology) of the Faculty of Engineering at Chulalongkorn University.
