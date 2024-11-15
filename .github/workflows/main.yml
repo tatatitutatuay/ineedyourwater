@@ -24,27 +24,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Debug checkout
-        run: |
-          echo "Working directory:"
-          pwd
-          echo "List contents:"
-          ls -al
-
-      - name: List contents of the root directory
-        run: ls -R .
-
       - name: List contents of the src directory (if it exists)
         run: ls -R src
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Copy files from src to current directory
+        run: |
+          # Use find to copy files from src to the current working directory
+          find src -type f -exec cp {} ./ \;
+          echo "Copied the following files to the current directory:"
+          ls -al
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Explicitly upload all files from the 'src' directory, including HTML files
-          path: 'src/**/*'  # Upload all HTML files from src
+          path: './*'  # Upload all the copied files
 
       - name: Deploy to GitHub Pages
         id: deployment
