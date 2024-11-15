@@ -176,6 +176,19 @@ void loop()
 
     Serial.println("Attempting to set Firebase value...");
 
+    if (Firebase.RTDB.setFloat(&fbdo, "Sensor/soilHumid", soilHumid))
+    {
+      Serial.println();
+      Serial.print(soilHumid);
+      Serial.print("-successfully saved");
+      Serial.println(fbdo.dataPath());
+    }
+
+    else
+    {
+      Serial.println("FAILED");
+    }
+
     if (Firebase.RTDB.setFloat(&fbdo, "Sensor/temperature", temperature))
     {
       Serial.print("-successfully saved");
