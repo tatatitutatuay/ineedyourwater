@@ -44,7 +44,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           # Explicitly upload all files from the 'src' directory, including HTML files
-          path: 'src/*.html'  # Upload all HTML files from src
+          path: 'src/**/*'  # Upload all HTML files from src
 
       - name: Deploy to GitHub Pages
         id: deployment
