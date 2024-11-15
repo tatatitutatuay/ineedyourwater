@@ -38,7 +38,7 @@ jobs:
           ls -al
 
       - name: Upload laewtaemain.html to Pages
-        uses: actions/upload-artifact@v2  # Changed to upload-artifact
+        uses: actions/upload-artifact@v3  # Updated to v3
         with:
           name: github-pages
           path: './laewtaemain.html'  # Ensure this points to the correct file
