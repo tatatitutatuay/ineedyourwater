@@ -39,5 +39,12 @@ jobs:
           # Upload entire repository
           path: './src/laewtaemain.html'
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          publish_branch: gh-pages  # Specify the branch to deploy to
+          publish_dir: ./public     # Path to the directory containing static files
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          user_name: 'GitHub Actions'
+          user_email: 'actions@github.com'
+          commit_message: 'Deploy to GitHub Pages'
+
