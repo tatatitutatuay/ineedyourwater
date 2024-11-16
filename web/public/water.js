@@ -1,4 +1,7 @@
-//export default function water() {
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
+
+export default function water() {
     const { initializeApp } = require("firebase/app");
     const { getDatabase, ref, set } = require("firebase/database");
 
@@ -30,4 +33,4 @@
         .catch((error) => {
           console.error("Error saving to Firebase:", error);
         });
-//}
+}
