@@ -1,6 +1,6 @@
 //export default function water() {
     const { initializeApp } = require("firebase/app");
-    const { getDatabase, ref, set } = require("firebase/database");
+    const { getDatabase, ref, set, get } = require("firebase/database");
 
     // Your Firebase configuration
     const firebaseConfig = {
@@ -18,16 +18,18 @@
     const database = getDatabase(firebaseApp);
     
     // Reference a location in the database (e.g., `messages/{userId}`)
-    const dbRef = ref(database, `water`);
+    const dbRef = ref(database, 'Sensor');
     
     // Save the message to Firebase
-    set(dbRef, {
-        status: 1,
-      })
-        .then(() => {
-          console.log("Message saved to Firebase.");
+    get(dbRef)
+        .then((snapshot) => {
+            if (snapshot.exists()) {
+            console.log("Data retrieved:", snapshot.val());
+            } else {
+            console.log("No data available at this path.");
+            }
         })
         .catch((error) => {
-          console.error("Error saving to Firebase:", error);
+            console.error("Error fetching data:", error);
         });
 //}
