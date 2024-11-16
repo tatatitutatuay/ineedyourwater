@@ -2,9 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.6.0/firebas
 import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js";
 
 export default function water() {
-    const { initializeApp } = require("firebase/app");
-    const { getDatabase, ref, set } = require("firebase/database");
-
+  
     // Your Firebase configuration
     const firebaseConfig = {
     apiKey: "AIzaSyAld8mAMkx-3bGBbOAS0-eqTn4QX7PyGn0",
